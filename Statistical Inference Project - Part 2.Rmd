@@ -1,0 +1,104 @@
+---
+title: "Statistical Inference Project"
+author: "José Gildardo Rojas-Nandayapa"
+date: "Saturday, September 20, 2014"
+output:
+  pdf_document:
+    fig_height: 4
+  html_document: default
+---
+#### Part 2: Basic inferential data analysis.
+
+Analyze the ToothGrowth data in the R datasets package.
+
+## Summary
+
+The data set contains records of the Effect of Vitamin C on Tooth Growth in Guinea Pigs.
+
+The response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+1. Load the ToothGrowth data and perform some basic exploratory data analyses 
+
+```{r}
+library(datasets)
+data(ToothGrowth)
+attach(ToothGrowth)
+# Print the 4 first and last rows
+head(ToothGrowth,n=4)
+tail(ToothGrowth,n=4)
+```
+
+**2. Provide a basic summary of the data.**
+
+```{r}
+dim(ToothGrowth)
+names(ToothGrowth)
+```
+
+Data is stored in a data frame with 60 observations and 3 variables.
+
+* [,1]   len     numeric    Tooth length
+* [,2]   supp	 factor	    Supplement type (VC or OJ).
+* [,3]	 dose	 numeric    Dose in milligrams.
+
+```{r}
+
+str(ToothGrowth)
+levels(ToothGrowth$supp)
+summary(ToothGrowth)
+coplot(len ~ dose | supp,data=ToothGrowth,panel=panel.smooth,ylab="Tooth length",
+       xlab="ToothGrowth - Length vs Dose, given Type of Supplement",cex.axis=.6)
+```
+
+Supplements: OJ:Orange juice, VC:Vitamin C | Doses:0.5, 1.0 and 2.0
+
+**3. Use confidence intervals and hypothesis tests to compare tooth growth by supp and dose. (Use the techniques from class even if there's other approaches worth considering)**
+
+**IMPORTANT: *Please see Appendix for hypothesis tests code.* **
+
+Mean tooth growth by supplement is bigger for Orange Juice (20.6633) vs. Vitamin C (16.9633), the p-value (0.6063) is slightly bigger than 0.05, we can say that in general Orange Juice over Vitamin C is a better supplement, but the difference is not huge, so more detailed analysis is required. 
+
+In general, averages add valuable information about the data groups being anlyzed. while p-values below 0.05 mean a strong presumption against null hypothesis, meaning that there is a difference between both methods, while p-values bigger than 0.05 mean a low presumption of null hypothesis. 
+
+
+**4. State your conclusions and the assumptions needed for your conclusions.** 
+
+By suplement: Orange juice vs. Vitamin C
+
+* Orange Juice supplement is better than Vitamin C.
+
+By dosis compared
+
+* 1.0 mg is much better than 0.5 mg.
+* 2.0 mg are better than 1.0, but the difference is not exactly proportional, in other words, 2.0 mg doesn't provide twice as much benefit as 1.0mg, specially with Orange Juice results at 1.0 mg.
+
+By dosis, comparing supplements.
+
+* At 0.5 and 1.0 mg, the supplement effect is bigger for Orange Juice than Vitamin C.
+* At 2.0 mg, Vitamin C is just slightly better than Orange Juice, but the difference not relevant.
+
+**Conclusion**
+
+Orange juice is better in general than Vitamin C for guinea pigs odontoblasts (tooth), at 1mg, Orange Juice provides a significant effect, near to 2.0mg doses of any of the two supplements tested, while Vitamin C only provides as much as Orange Juice at 2.0 milligram doses. These conclusions may also be confirmed by inspecting the chart above.
+
+## Appendix
+```{r}
+# Performing T Test by supplemant type
+t.test(len ~ supp,data=ToothGrowth)
+# Subsetting ToothGrowth by dose comparing doses
+TG_0.5to1.0<-subset(ToothGrowth,dose %in% c(0.5,1.0))
+TG_1.0to2.0<-subset(ToothGrowth,dose %in% c(1.0,2.0))
+TG_0.5to2.0<-subset(ToothGrowth,dose %in% c(0.5,2.0))
+# Performing T test by dose comparing doses
+t.test(len ~ dose, data=TG_0.5to1.0)
+t.test(len ~ dose, data=TG_1.0to2.0)
+t.test(len ~ dose, data=TG_0.5to2.0)
+# Subsetting ToothGrowth by dose, comparing supplements
+TG0.5 <- subset(ToothGrowth,dose==0.5)
+TG1.0 <- subset(ToothGrowth,dose==1.0)
+TG2.0 <- subset(ToothGrowth,dose==2.0)
+# Performing T test by doses, comparing supplements
+t.test(len ~ supp, data = TG0.5)
+t.test(len ~ supp, data = TG1.0)
+t.test(len ~ supp, data = TG2.0)
+```
